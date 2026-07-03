@@ -25,7 +25,7 @@ class BeeOrchestrator:
         intent = self.parse_intent(user_input)
 
         if intent == "navigation":
-            start = "A"
+            start = self.map.location or "A"   # ✅ FIXED LINE
             destination = "B"
 
             self.active_route = self.router.calculate_route(start, destination)
