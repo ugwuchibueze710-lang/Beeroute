@@ -18,40 +18,37 @@ class BeeOrchestrator:
     def parse_intent(self, text):
         text = text.lower()
         keywords = ["go to", "navigate", "take me", "drive to", "route to"]
-
         return "navigation" if any(k in text for k in keywords) else "chat"
 
     def handle(self, user_input):
         intent = self.parse_intent(user_input)
 
+        # ---------------- NAVIGATION ----------------
         if intent == "navigation":
-            start = self.map.location or "A"   # ✅ FIXED LINE
+            start = self.map.location or "A"
             destination = "B"
 
             self.active_route = self.router.calculate_route(start, destination)
 
-            return self.start_navigation()
+            steps = self.active_route.get("steps", [])
 
+            return {
+                "type": "navigation",
+                "bee": self.bee.navigation_speak("Navigation started."),
+                "steps": steps,
+                "raw": self.active_route
+            }
+
+        # ---------------- CHAT ----------------
         response = self.brain.respond(user_input)
         text = response["text"]
 
-        final = self.bee.navigation_speak(text)
-        self.tts.speak(final)
+        bee_msg = self.bee.navigation_speak(text)
+        self.tts.speak(bee_msg)
 
-        return final
-
-    def start_navigation(self):
-        route = self.active_route
-
-        while True:
-            instruction = self.router.get_next_instruction(route)
-
-            if instruction == "You have arrived at your destination.":
-                msg = self.bee.navigation_speak(instruction)
-                self.tts.speak(msg)
-                return msg
-
-            msg = self.bee.format_navigation_output(instruction)
-            self.tts.speak(msg)
-
-            print(msg)
+        return {
+            "type": "chat",
+            "bee": bee_msg,
+            "steps": [],
+            "raw": response
+        }
