@@ -1,33 +1,49 @@
 # BeeRoute Core System Controller
+# Central brain loop of the system
 
+from ai.personality import BeePersonality
 from ai.brain import Brain
 from navigation.router import Router
 from maps.map_engine import MapEngine
-from voice.speech_to_text import SpeechToText
 from voice.text_to_speech import TextToSpeech
 
 
 class BeeRouteCore:
     def __init__(self):
-        self.ai = Brain()
+        self.bee = BeePersonality()
+        self.brain = Brain()
         self.router = Router()
         self.maps = MapEngine()
-        self.stt = SpeechToText()
         self.tts = TextToSpeech()
 
     def process_command(self, user_input):
-        # AI interprets command
-        ai_response = self.ai.respond(user_input)
+        """
+        Pipeline:
+        User → Brain → Bee → Output
+        """
 
-        # Simple routing demo (placeholder logic)
-        route = self.router.calculate_route("Current Location", "Destination")
+        # 1. Brain interprets user input
+        raw_response = self.brain.respond(user_input)
 
-        # Voice output
-        spoken = self.tts.speak(ai_response)
+        text = raw_response.get("text", "I’m not sure yet.")
+        distance = raw_response.get("distance", None)
+        eta = raw_response.get("eta", None)
+
+        # 2. Bee humanizes response
+        bee_text = self.bee.navigation_speak(text)
+
+        final_output = self.bee.format_navigation(
+            bee_text,
+            distance=distance,
+            eta=eta
+        )
+
+        # 3. Voice output (only final text)
+        spoken = self.tts.speak(final_output)
 
         return {
-            "ai": ai_response,
-            "route": route,
+            "ai": final_output,
+            "route": raw_response.get("route", "no route data yet"),
             "voice": spoken
         }
 
