@@ -1,34 +1,48 @@
-# BeeRoute Map Engine (Foundation Layer)
-# Prepares system for real OpenStreetMap integration later
+# BeeRoute Map Engine (OpenStreetMap Foundation Layer)
+# Prepares real-world GPS + routing data integration
+
+import math
+
 
 class MapEngine:
     def __init__(self):
         self.current_location = None
 
-    def set_location(self, location):
+    def set_location(self, lat, lon):
         """
-        Set current GPS location (placeholder)
+        Store real GPS coordinates
         """
-        self.current_location = location
-        return f"Location set to {location}"
+        self.current_location = (lat, lon)
+        return f"Location set to {lat}, {lon}"
 
     def get_location(self):
-        """
-        Returns current location
-        """
-        return self.current_location or "Unknown location"
+        return self.current_location
 
-    def find_places_nearby(self, place_type="gas"):
+    def haversine_distance(self, coord1, coord2):
         """
-        Placeholder for POI system (gas, food, rest stops)
+        Real-world distance calculation (km)
         """
-        return [
-            f"Nearby {place_type} station A (coming soon)",
-            f"Nearby {place_type} station B (coming soon)"
-        ]
+        R = 6371  # Earth radius
+
+        lat1, lon1 = coord1
+        lat2, lon2 = coord2
+
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+        return R * c
 
     def estimate_distance(self, start, end):
         """
-        Placeholder distance calculator (real version comes with OSM later)
+        Wrapper for routing system
         """
-        return "distance calculation pending real map integration"
+        if isinstance(start, tuple) and isinstance(end, tuple):
+            return self.haversine_distance(start, end)
+
+        return "Invalid coordinates (need lat/lon)"
