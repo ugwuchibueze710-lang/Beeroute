@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-from core.orchestrator import BeeOrchestrator
 
 app = Flask(__name__)
-bee = BeeOrchestrator()
 
 @app.route("/")
 def home():
@@ -10,7 +8,9 @@ def home():
 
 @app.route("/send", methods=["POST"])
 def send():
-    user_input = request.json.get("text")
-    response = bee.handle(user_input)
+    data = request.json
+    text = data.get("text", "")
 
-    return jsonify({"response": response})
+    return jsonify({
+        "response": f"You said: {text}"
+    })
