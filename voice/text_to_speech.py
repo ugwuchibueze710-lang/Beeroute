@@ -1,17 +1,27 @@
-# BeeRoute Text-to-Speech System (placeholder)
+# BeeRoute Text-to-Speech Engine
+# Handles spoken output for Bee (driving assistant)
+
+import pyttsx3
+
 
 class TextToSpeech:
     def __init__(self):
-        self.voice = "default"
-
-    def set_voice(self, voice_name):
-        self.voice = voice_name
+        self.engine = pyttsx3.init()
+        self.engine.setProperty("rate", 175)  # natural speaking speed
+        self.engine.setProperty("volume", 1.0)
 
     def speak(self, text):
-        # Placeholder for future audio output system
-        return f"[Speaking in {self.voice} voice]: {text}"
+        """
+        Convert text to speech and also return it for system use
+        """
 
+        if not text:
+            return ""
 
-if __name__ == "__main__":
-    tts = TextToSpeech()
-    print(tts.speak("BeeRoute system online"))
+        try:
+            self.engine.say(text)
+            self.engine.runAndWait()
+        except Exception as e:
+            return f"TTS error: {str(e)}"
+
+        return text
