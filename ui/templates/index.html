@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BeeRoute</title>
+</head>
+<body style="background:black;color:white;font-family:Arial;">
+
+    <h1>🐝 BeeRoute Navigation</h1>
+
+    <input id="input" placeholder="Where do you want to go?" />
+    <button onclick="send()">Send</button>
+
+    <pre id="output"></pre>
+
+    <script>
+        async function send() {
+            const text = document.getElementById("input").value;
+
+            const res = await fetch("/send", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({text})
+            });
+
+            const data = await res.json();
+
+            document.getElementById("output").innerText =
+                JSON.stringify(data.response, null, 2);
+        }
+    </script>
+
+</body>
+</html>
