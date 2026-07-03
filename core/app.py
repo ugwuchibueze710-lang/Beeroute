@@ -1,6 +1,3 @@
-# BeeRoute Core Launcher
-# This file ONLY starts the system
-
 from core.orchestrator import BeeOrchestrator
 
 
@@ -9,21 +6,16 @@ class BeeRouteCore:
         self.system = BeeOrchestrator()
 
     def run(self):
-        print("🐝 BeeRoute Online - Full System Active")
+        print("🐝 BeeRoute Online")
 
         while True:
-            user_input = input("\nYou: ")
+            user_input = input("You: ")
 
-            if user_input.lower() in ["exit", "quit"]:
-                print("Shutting down BeeRoute...")
+            if user_input in ["exit", "quit"]:
                 break
 
-            result = self.system.handle(user_input)
-
-            print("\nBee:", result)
-            print("\n----------------------\n")
+            print(self.system.handle(user_input))
 
 
 if __name__ == "__main__":
-    app = BeeRouteCore()
-    app.run()
+    BeeRouteCore().run()
