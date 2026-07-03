@@ -1,26 +1,39 @@
-# BeeRoute Navigation Router (basic path engine)
+# BeeRoute Router Engine (Foundation Version)
+# Builds structured routes for future real GPS integration
 
 class Router:
     def __init__(self):
-        self.mode = "fastest"
+        pass
 
-    def set_mode(self, mode):
-        self.mode = mode
+    def calculate_route(self, start, destination, avoid_highways=False):
+        """
+        Returns a structured route plan (placeholder for real map engine later)
+        """
 
-    def calculate_route(self, start, destination):
-        return {
+        route = {
             "start": start,
             "destination": destination,
-            "mode": self.mode,
-            "route": [
-                "Step 1: Start navigation",
-                "Step 2: Follow main road",
-                "Step 3: Continue straight",
-                "Step 4: Arrive at destination"
-            ]
+            "steps": [
+                "Start navigation",
+                "Follow main road",
+                "Continue straight for a while",
+                "Approaching destination area",
+                "Arrive at destination"
+            ],
+            "distance": "calculated later with map engine",
+            "eta": "calculated later with traffic engine",
+            "mode": "default"
         }
 
+        if avoid_highways:
+            route["mode"] = "avoid_highways"
+            route["steps"] = [
+                "Start navigation",
+                "Take local roads",
+                "Avoid highways as requested",
+                "Follow backroads and city streets",
+                "Approaching destination",
+                "Arrive at destination"
+            ]
 
-if __name__ == "__main__":
-    r = Router()
-    print(r.calculate_route("A", "B"))
+        return route
