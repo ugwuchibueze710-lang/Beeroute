@@ -1,39 +1,56 @@
-# BeeRoute Router Engine (Foundation Version)
-# Builds structured routes for future real GPS integration
+# BeeRoute Router Engine (Turn-by-Turn System)
+# Converts routes into human driving instructions
 
 class Router:
     def __init__(self):
-        pass
+        self.step_index = 0
 
     def calculate_route(self, start, destination, avoid_highways=False):
         """
-        Returns a structured route plan (placeholder for real map engine later)
+        Generates structured route (placeholder + navigation flow)
         """
+
+        base_steps = [
+            "Head out from current location",
+            "Continue straight for a while",
+            "Approach main intersection",
+            "Follow road signs toward destination area",
+            "Arrive at destination"
+        ]
+
+        highway_steps = [
+            "Take local roads from start",
+            "Avoid highway entry ramps",
+            "Continue through city streets",
+            "Stay on alternate route",
+            "Approach destination",
+            "Arrive at destination"
+        ]
 
         route = {
             "start": start,
             "destination": destination,
-            "steps": [
-                "Start navigation",
-                "Follow main road",
-                "Continue straight for a while",
-                "Approaching destination area",
-                "Arrive at destination"
-            ],
-            "distance": "calculated later with map engine",
-            "eta": "calculated later with traffic engine",
-            "mode": "default"
+            "steps": highway_steps if avoid_highways else base_steps,
+            "current_step": 0,
+            "total_steps": len(highway_steps if avoid_highways else base_steps),
+            "mode": "avoid_highways" if avoid_highways else "normal"
         }
 
-        if avoid_highways:
-            route["mode"] = "avoid_highways"
-            route["steps"] = [
-                "Start navigation",
-                "Take local roads",
-                "Avoid highways as requested",
-                "Follow backroads and city streets",
-                "Approaching destination",
-                "Arrive at destination"
-            ]
-
         return route
+
+    def get_next_instruction(self, route):
+        """
+        Returns next turn-by-turn instruction
+        """
+
+        steps = route.get("steps", [])
+        index = route.get("current_step", 0)
+
+        if index >= len(steps):
+            return "You have arrived at your destination."
+
+        instruction = steps[index]
+
+        route["current_step"] += 1
+
+        return instruction
