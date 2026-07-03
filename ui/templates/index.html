@@ -3,31 +3,36 @@
 <head>
     <title>BeeRoute</title>
 </head>
+
 <body style="background:black;color:white;font-family:Arial;">
 
-    <h1>🐝 BeeRoute Navigation</h1>
+<h1>🐝 BeeRoute</h1>
 
-    <input id="input" placeholder="Where do you want to go?" />
-    <button onclick="send()">Send</button>
+<input id="input" placeholder="Where to?" />
+<button onclick="send()">Send</button>
 
-    <pre id="output"></pre>
+<pre id="bee"></pre>
+<div id="steps"></div>
 
-    <script>
-        async function send() {
-            const text = document.getElementById("input").value;
+<script>
+async function send() {
+    const text = document.getElementById("input").value;
 
-            const res = await fetch("/send", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({text})
-            });
+    const res = await fetch("/send", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text})
+    });
 
-            const data = await res.json();
+    const data = await res.json();
+    const r = data.response;
 
-            document.getElementById("output").innerText =
-                JSON.stringify(data.response, null, 2);
-        }
-    </script>
+    document.getElementById("bee").innerText = r.bee;
+
+    document.getElementById("steps").innerHTML =
+        (r.steps || []).map(s => `<div>➡️ ${s}</div>`).join("");
+}
+</script>
 
 </body>
 </html>
