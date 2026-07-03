@@ -1,74 +1,65 @@
-# BeeRoute Map Engine (OpenStreetMap Data Layer Foundation)
-# This prepares real map data ingestion for routing later
+# BeeRoute Map Engine (OpenStreetMap Real Data Layer)
+# Connects real-world map data to routing engine
 
-import math
+import osmnx as ox
 
 
 class MapEngine:
     def __init__(self):
+        self.graph = None
         self.current_location = None
-        self.osm_data = {
-            "nodes": {},
-            "roads": []
-        }
 
+    # ----------------------------
+    # LOAD REAL MAP DATA
+    # ----------------------------
+    def load_city(self, place_name):
+        """
+        Downloads real road network from OpenStreetMap
+        """
+        print(f"Loading map for {place_name}...")
+
+        self.graph = ox.graph_from_place(
+            place_name,
+            network_type="drive"
+        )
+
+        return f"Map loaded for {place_name}"
+
+    # ----------------------------
+    # SET LOCATION
+    # ----------------------------
     def set_location(self, lat, lon):
-        """
-        Store GPS coordinates
-        """
         self.current_location = (lat, lon)
-        return f"Location set to {lat}, {lon}"
-
-    def get_location(self):
         return self.current_location
 
-    def load_osm_placeholder(self, area_name="default"):
-        """
-        Placeholder for OpenStreetMap data loading
-        (real version will fetch road graph data later)
-        """
+    # ----------------------------
+    # FIND NEAREST NODE
+    # ----------------------------
+    def get_nearest_node(self, lat, lon):
+        if self.graph is None:
+            return None
 
-        self.osm_data = {
-            "area": area_name,
-            "nodes": {
-                "A": (0, 0),
-                "B": (1, 1),
-                "C": (2, 2)
-            },
-            "roads": [
-                ("A", "B"),
-                ("B", "C")
-            ]
-        }
+        return ox.distance.nearest_nodes(
+            self.graph,
+            lon,
+            lat
+        )
 
-        return f"OSM data loaded for {area_name}"
+    # ----------------------------
+    # GET ROUTE (REAL ROAD PATH)
+    # ----------------------------
+    def get_route(self, start_lat, start_lon, end_lat, end_lon):
+        if self.graph is None:
+            return None
 
-    def haversine_distance(self, coord1, coord2):
-        """
-        Real-world distance calculation (km)
-        """
-        R = 6371
+        start_node = self.get_nearest_node(start_lat, start_lon)
+        end_node = self.get_nearest_node(end_lat, end_lon)
 
-        lat1, lon1 = coord1
-        lat2, lon2 = coord2
+        route = ox.shortest_path(
+            self.graph,
+            start_node,
+            end_node,
+            weight="length"
+        )
 
-        phi1 = math.radians(lat1)
-        phi2 = math.radians(lat2)
-
-        dphi = math.radians(lat2 - lat1)
-        dlambda = math.radians(lon2 - lon1)
-
-        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-        return R * c
-
-    def estimate_distance(self, start, end):
-        """
-        Distance wrapper for routing system
-        """
-
-        if isinstance(start, tuple) and isinstance(end, tuple):
-            return self.haversine_distance(start, end)
-
-        return "Invalid coordinates"
+        return route
