@@ -3,11 +3,5 @@ requests
 numpy
 geopy
 networkx
-
-# Voice system (future local support)
 SpeechRecognition
 pyttsx3
-pyaudio
-
-# Optional AI integration (Ollama/local LLM support)
-ollama
