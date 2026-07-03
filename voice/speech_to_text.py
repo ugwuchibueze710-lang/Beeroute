@@ -1,18 +1,34 @@
-# BeeRoute Speech to Text (placeholder system)
+# BeeRoute Speech-to-Text Engine
+# Handles voice input for hands-free driving commands
+
+import speech_recognition as sr
+
 
 class SpeechToText:
     def __init__(self):
-        self.active = True
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
 
     def listen(self):
-        # Placeholder for future microphone input system
-        return "Listening... (voice system not implemented yet)"
+        """
+        Listens for user voice input and converts to text
+        """
 
-    def transcribe(self, audio_input):
-        return f"Transcribed text: {audio_input}"
+        try:
+            with self.microphone as source:
+                self.recognizer.adjust_for_ambient_noise(source)
+                print("Listening...")
 
+                audio = self.recognizer.listen(source)
 
-if __name__ == "__main__":
-    stt = SpeechToText()
-    print(stt.listen())
-    print(stt.transcribe("test audio"))
+            text = self.recognizer.recognize_google(audio)
+            return text
+
+        except sr.UnknownValueError:
+            return "I didn't catch that."
+
+        except sr.RequestError:
+            return "Speech service unavailable."
+
+        except Exception as e:
+            return f"STT error: {str(e)}"
