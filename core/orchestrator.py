@@ -1,6 +1,3 @@
-# BeeRoute Orchestrator (System Glue Layer)
-# Connects Brain → Map → Router → Bee → Voice
-
 from ai.brain import Brain
 from ai.personality import BeePersonality
 from navigation.router import Router
@@ -18,36 +15,43 @@ class BeeOrchestrator:
 
         self.active_route = None
 
+    def parse_intent(self, text):
+        text = text.lower()
+        keywords = ["go to", "navigate", "take me", "drive to", "route to"]
+
+        return "navigation" if any(k in text for k in keywords) else "chat"
+
     def handle(self, user_input):
-        """
-        FULL SYSTEM PIPELINE
-        """
+        intent = self.parse_intent(user_input)
 
-        # 1. Brain understands intent
+        if intent == "navigation":
+            start = "A"
+            destination = "B"
+
+            self.active_route = self.router.calculate_route(start, destination)
+
+            return self.start_navigation()
+
         response = self.brain.respond(user_input)
+        text = response["text"]
 
-        text = response.get("text", "")
-
-        # 2. Detect navigation intent (simple rule for now)
-        if "go to" in user_input or "navigate" in user_input:
-            destination = user_input
-
-            # fallback start (will be GPS later)
-            start = "current_location"
-
-            self.active_route = self.router.calculate_route(
-                start,
-                destination
-            )
-
-            route_text = self.active_route["steps"][0]
-
-            final = self.bee.navigation_speak(route_text)
-
-        else:
-            final = self.bee.navigation_speak(text)
-
-        # 3. Speak output
+        final = self.bee.navigation_speak(text)
         self.tts.speak(final)
 
         return final
+
+    def start_navigation(self):
+        route = self.active_route
+
+        while True:
+            instruction = self.router.get_next_instruction(route)
+
+            if instruction == "You have arrived at your destination.":
+                msg = self.bee.navigation_speak(instruction)
+                self.tts.speak(msg)
+                return msg
+
+            msg = self.bee.format_navigation_output(instruction)
+            self.tts.speak(msg)
+
+            print(msg)
